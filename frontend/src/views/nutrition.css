@@ -1,0 +1,10 @@
+.nutrition .card{padding:18px;margin-bottom:14px}.nutrition h2{font-size:19px;margin-bottom:14px}.nutrition h3{margin-bottom:10px}.nutrition-date{display:flex;align-items:center;gap:16px;margin-bottom:16px}.nutrition-date input{width:auto}.nutrition-totals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.nutrition-totals .card{padding:12px}.nutrition-totals strong{font-size:24px}.nutrition-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}.nutrition-fields label{font-size:13px;display:grid;gap:6px}.nutrition-estimate{display:flex;gap:8px;margin:16px 0}.nutrition-row{padding:12px 0;border-top:1px solid var(--line,#333);display:flex;justify-content:space-between;gap:12px;overflow-wrap:anywhere}.nutrition .btn{padding:9px 12px;margin:3px;border-radius:10px;background:var(--bg2,#26382c);color:inherit;border:1px solid #ffffff20;cursor:pointer}.nutrition-chart{display:grid;grid-template-columns:45px 1fr 92px;gap:10px;align-items:center;width:100%;border:0;background:none;color:inherit;padding:10px 0;text-align:left;font-size:12px;cursor:pointer}.nutrition-track{height:12px;background:#ffffff12;border-radius:8px;overflow:hidden}.nutrition-track>span{display:block;height:100%;background:var(--acc,#37d66a);border-radius:8px}@media(max-width:480px){.nutrition-totals{grid-template-columns:repeat(2,1fr)}.nutrition-row{flex-direction:column}}
+/* Keep compact controls out of the upstream full-width .btn layout. */
+.nutrition .btn{width:auto;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;line-height:1.4}
+.nutrition .hdr{align-items:center;flex-wrap:wrap}
+.nutrition .hdr>div{flex:1 1 180px;min-width:0}
+.nutrition .hdr h1{word-break:keep-all;overflow-wrap:normal}
+.nutrition .hdr>.btn{margin-left:auto}
+.nutrition .input{min-width:0;max-width:100%;box-sizing:border-box}
+.nutrition-date{flex-wrap:wrap}
+.nutrition form>.btn[type=submit]{background:var(--acc);color:var(--on-acc,#000);min-width:120px}

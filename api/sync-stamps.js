@@ -46,12 +46,12 @@ const workoutKey = w => (w?.id != null ? w.id : `${w?.d}|${w?.start}`);
 const workoutTime = w => Number(w?._ts) || Number(w?.end) || Number(w?.start) || 0;
 export const DEL_LISTS = {
   workouts: workoutKey, routines: x => x?.id, customEx: x => x?.id, bodyweight: e => e?.d,
-  measurements: e => e?.d, gymCards: x => x?.id, equipProfiles: x => x?.id, favEx: x => x,
+  measurements: e => e?.d, nutritionEntries: x => x?.id, gymCards: x => x?.id, equipProfiles: x => x?.id, favEx: x => x,
 };
 const DEL_TIME = {
   workouts: workoutTime, routines: x => Number(x?._ts) || 0, customEx: x => Number(x?._ts) || 0,
   bodyweight: e => Number(e?.t) || 0, measurements: e => Number(e?.t) || 0,
-  gymCards: x => Number(x?._ts) || 0, equipProfiles: x => Number(x?._ts) || 0,
+  nutritionEntries: x => Number(x?._ts) || 0, gymCards: x => Number(x?._ts) || 0, equipProfiles: x => Number(x?._ts) || 0,
 };
 export const DELETED_MAX = 5000;
 const capStamps = m => {
@@ -63,7 +63,7 @@ const capStamps = m => {
 };
 const OWN_MERGE = new Set([
   '_ts', '_rev', '_wid', '_wids', '_unstamped', '_prior', 'active', 'unit', 'unitSet', 'resetAt', 'resetIds', 'deleted', 'edited', 'undone', 'routineOrder',
-  'workouts', 'routines', 'customEx', 'equipProfiles', 'gymCards', 'bodyweight', 'measurements', 'favEx',
+  'workouts', 'routines', 'customEx', 'equipProfiles', 'gymCards', 'nutritionEntries', 'bodyweight', 'measurements', 'favEx',
   'exWeights', 'balanceOverrides', 'loadKind', 'plates', 'dbLoad', 'dumbbells', 'dayNotes',
 ]);
 const PER_KEY = new Set(['week', 'dayPlan', 'exNotes', 'barWeights']);
@@ -71,7 +71,7 @@ const PER_KEY = new Set(['week', 'dayPlan', 'exNotes', 'barWeights']);
 // key by the app, so never stamped here as a whole setting. dayNotes is a note per day off.
 export const STAMPED_MAPS = ['balanceOverrides', 'loadKind', 'plates', 'dbLoad', 'dumbbells', 'dayNotes'];
 const ENTRY_META = new Set(['id', '_ts', '_f', '_u']);
-const ENTRY_LISTS = ['routines', 'customEx', 'equipProfiles', 'gymCards', 'workouts'];
+const ENTRY_LISTS = ['routines', 'customEx', 'equipProfiles', 'gymCards', 'nutritionEntries', 'workouts'];
 
 // Whether removal record `v` replaces `cur`: the later stamp, and on a tie the add-back.
 const laterDel = (v, cur) => {
@@ -377,7 +377,7 @@ const V139_DROPS = {
     'inc', 'deloadFactor', 'note', 'warmupSets', 'restSec', 'reps', 'side', 'repsMin', 'repsMax', 'intensifier']),
   customEx: new Set(['media', 'url']),
   equipProfiles: new Set(),
-  gymCards: new Set(),
+  nutritionEntries: new Set(), gymCards: new Set(),
   workouts: new Set(['media', 'note', 'name', 'bw', 'prs', 'vol', 'routineIds']),
   'workouts.entries': new Set(['sg', 'note', 'notePin', 'noProg', 'topW']),
   'workouts.entries.sets': new Set(['w', 'r', 'sec', 'min', 'km', 'dist', 'speed', 'rir', 'rpe', 'planSec', 'note',

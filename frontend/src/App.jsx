@@ -34,6 +34,7 @@ import CheckIn from './views/CheckIn.jsx'
 import Plan from './views/Plan.jsx'
 import RoutineEdit from './views/RoutineEdit.jsx'
 import Workout from './views/Workout.jsx'
+import Nutrition from './views/Nutrition.jsx'
 import Stats from './views/Stats.jsx'
 import History from './views/History.jsx'
 import Library from './views/Library.jsx'
@@ -211,6 +212,7 @@ function Shell() {
               <Route path="/plan" element={<Plan />} />
               <Route path="/plan/r/:id" element={<RoutineEdit />} />
               <Route path="/workout" element={<Workout />} />
+              <Route path="/nutrition" element={<Nutrition />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/history" element={<History />} />
               <Route path="/library" element={<Library />} />
