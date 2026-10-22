@@ -1,7 +1,7 @@
 {
-  "name": "baolong战士",
-  "short_name": "baolong战士",
-  "description": "中文训练记录、统计与 AI 私人教练",
+  "name": "轻燃",
+  "short_name": "轻燃",
+  "description": "记录每次运动，看见每一点改变。",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
