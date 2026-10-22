@@ -1,5 +1,11 @@
 {
   "devDependencies": {
     "js-yaml": "^4.1.0"
+  },
+  "scripts": {
+    "dev": "node scripts/fitpilot/dev.mjs",
+    "build": "npm --prefix frontend run build -- --mode fitpilot",
+    "setup": "npm --prefix api ci --omit=optional && npm --prefix frontend ci",
+    "test:fitpilot": "npm --prefix frontend test -- src/lib/coach.test.js src/lib/coach-insights.test.js src/lib/default-lang.test.js src/store/useStore.default-lang.test.jsx src/lib/fitpilot.test.js"
   }
 }

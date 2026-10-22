@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <script>
   // Set direction before first paint so an Arabic profile never flashes as LTR.
   // The app re-applies this on every language change (lib/i18n.js setLang).
   // i18n-core RTL_LANGS is the runtime source of truth — keep this list in sync.
   try {
     var s = JSON.parse(localStorage.getItem('gym_state_v1') || '{}');
-    var l = s.lang || ((navigator.language || '').slice(0, 2) === 'ar' ? 'ar' : 'en');
+    var l = s.lang || 'zh';
     document.documentElement.lang = l;
     document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
   } catch (e) {}
 </script>
-<title>openGym</title>
-<meta name="description" content="Personal gym & body weight tracker">
+<title>FitPilot AI</title>
+<meta name="description" content="记录训练，理解进步，和 AI 一起调整计划">
 <meta name="theme-color" content="#0c0e12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="openGym">
+<meta name="apple-mobile-web-app-title" content="FitPilot AI">
 <!-- use-credentials: browsers fetch the manifest without cookies, even same-origin; behind an auth
      proxy (Authelia, Cloudflare Access, Teleport…) that fetch is a login redirect and the Home Screen
      icon comes out generic. iOS 26 reads the icon from the manifest, so this is where it shows. -->

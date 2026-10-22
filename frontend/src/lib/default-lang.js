@@ -36,6 +36,7 @@ export function matchLocale(tag) {
 export function autoLang(S, config, navLangs = []) {
   if (!S || S.langAuto !== true) return null
   return matchLocale(config?.default_lang)
+    || matchLocale(import.meta.env?.VITE_DEFAULT_LANG)
     || (navLangs || []).map(matchLocale).find(Boolean)
     || 'en'
 }
@@ -62,7 +63,7 @@ export function effectiveLang(S, config, navLangs = browserLangs()) {
   let cfg = config
   if (!cfg) {
     const seen = cachedDefaultLang()
-    if (seen === null) return own
+    if (seen === null) return matchLocale(import.meta.env?.VITE_DEFAULT_LANG) || own
     cfg = { default_lang: seen }
   }
   return autoLang(S, cfg, navLangs) || own
