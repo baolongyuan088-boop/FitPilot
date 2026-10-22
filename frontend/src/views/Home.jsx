@@ -106,6 +106,7 @@ export default function Home() {
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}><Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
     </div>
 
+    <button className="card" style={{width: '100%', textAlign: 'left', padding: 18, color: 'inherit', cursor: 'pointer'}} onClick={() => nav('/ai-connect')}><strong>连接 AI 教练 →</strong><div className="sub">配置火山方舟，使用自己的模型服务</div></button>
     <button className="card" style={{width: '100%', textAlign: 'left', padding: 18, color: 'inherit', cursor: 'pointer'}} onClick={() => nav('/nutrition')}><strong>饮食记录与统计 →</strong><div className="sub">记录三餐与加餐，查看热量和营养摄入</div></button>
 
     <div className="card">
