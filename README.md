@@ -1,7 +1,7 @@
-# FitPilot AI
+# baolong战士
 
 基于 [openGym](https://github.com/DuarteSantos8/openGym) 的个人中文健身应用。
-第一阶段保留上游训练记录、统计、PWA 和 AI 教练能力，增加中文默认配置、FitPilot 品牌和本地启动入口。
+第一阶段保留上游训练记录、统计、PWA 和 AI 教练能力，增加中文默认配置、baolong战士品牌和本地启动入口。
 
 ## 本地运行
 
@@ -20,7 +20,7 @@ npm run dev
 
 - 简体中文默认界面；手动选择的其他语言仍被保留。
 - 训练计划、组数/重量/次数记录、历史、体重和训练统计：继承上游实现。
-- iPhone PWA 清单、主屏幕名称和离线基础：继承上游并设置 FitPilot 名称。需部署 HTTPS 后，在 Safari 分享菜单选择“添加到主屏幕”；本机 localhost 地址不能直接在 iPhone 使用。尚未进行真机安装验收。
+- iPhone PWA 清单、主屏幕名称和离线基础：继承上游并设置 baolong战士名称。需部署 HTTPS 后，在 Safari 分享菜单选择“添加到主屏幕”；本机 localhost 地址不能直接在 iPhone 使用。尚未进行真机安装验收。
 - AI 私人教练：继承上游计划生成、训练历史分析、训练复盘、调整提案、确认后应用及撤销机制。未连接模型时不伪造 AI 结果。
 
 ## 配置真实 AI
@@ -30,7 +30,7 @@ npm run dev
 
 ## 版权和素材
 
-保留原始 [LICENSE](LICENSE) 与 [NOTICE.md](NOTICE.md)。openGym 代码版权归 Duarte Santos 等原作者，沿用 AGPL-3.0；本 fork 的修改同样公开提供源码。上游第三方动作图片/动画不属于 AGPL。FitPilot 构建模式使用自制哑铃占位图，不展示这些媒体，也不把媒体交给 AI。fork 历史仍包含上游资产，若要商业分发或重用须另行取得素材授权，不能把代码许可当作素材许可。
+保留原始 [LICENSE](LICENSE) 与 [NOTICE.md](NOTICE.md)。openGym 代码版权归 Duarte Santos 等原作者，沿用 AGPL-3.0；本 fork 的修改同样公开提供源码。上游第三方动作图片/动画不属于 AGPL。baolong战士构建模式使用自制哑铃占位图，不展示这些媒体，也不把媒体交给 AI。fork 历史仍包含上游资产，若要商业分发或重用须另行取得素材授权，不能把代码许可当作素材许可。
 
 ## 验证
 

@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 const root = fileURLToPath(new URL('../../', import.meta.url))
-const env = { ...process.env, PORT: '3000', ORIGIN: 'http://localhost:5173', RP_ID: 'localhost', RP_NAME: 'FitPilot AI', DEFAULT_LANG: 'zh', DATA_DIR: resolve(root, 'data'), PASSWORD_LOGIN: '1' }
+const env = { ...process.env, PORT: '3000', ORIGIN: 'http://localhost:5173', RP_ID: 'localhost', RP_NAME: 'baolong战士', DEFAULT_LANG: 'zh', DATA_DIR: resolve(root, 'data'), PASSWORD_LOGIN: '1' }
 const children = [
   spawn(process.execPath, ['server.js'], { cwd: resolve(root, 'api'), env, stdio: 'inherit' }),
   spawn('npm', ['run', 'dev', '--', '--mode', 'fitpilot', '--host', '127.0.0.1', '--port', '5173', '--strictPort'], { cwd: resolve(root, 'frontend'), env: { ...process.env, API_TARGET: 'http://127.0.0.1:3000', API_ORIGIN: env.ORIGIN }, stdio: 'inherit' })
