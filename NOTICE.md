@@ -159,3 +159,7 @@ by the Capawesome Team (Robin Genz), a Capacitor wrapper around Google's ML Kit,
 **Apache License 2.0**. openGym pins the `7.x` line to stay on Capacitor 7. The full license text is
 available at <https://www.apache.org/licenses/LICENSE-2.0> and in the package's own `LICENSE` file.
 The decoded string is what openGym keeps; the photo itself is never stored.
+
+## FitPilot / 轻燃 food nutrition data
+
+`frontend/src/data/foods.json` is extracted from USDA FoodData Central SR Legacy (April 2018). USDA FoodData Central data is public domain, published under CC0 1.0. Chinese display names are translations added by this fork. Original descriptions and FDC identifiers are retained. Source: https://fdc.nal.usda.gov/download-datasets/ ; licensing: https://fdc.nal.usda.gov/api-guide/#bkmk-9 . See docs/FOOD_DATA.md.

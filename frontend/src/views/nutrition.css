@@ -8,3 +8,4 @@
 .nutrition .input{min-width:0;max-width:100%;box-sizing:border-box}
 .nutrition-date{flex-wrap:wrap}
 .nutrition form>.btn[type=submit]{background:var(--acc);color:var(--on-acc,#000);min-width:120px}
+.food-search{margin:16px 0}.food-search>label,.food-weight{display:grid;gap:8px;font-size:14px}.food-results{max-height:240px;overflow-y:auto;border:1px solid #ffffff20;border-radius:12px}.food-result{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;width:100%;padding:12px;background:transparent;color:inherit;border:0;border-bottom:1px solid #ffffff15;cursor:pointer}.food-result strong{font-size:14px;font-weight:500;overflow-wrap:anywhere}.food-result>span{font-size:12px;flex:0 0 100px;color:var(--label-2)}.food-result:hover{background:#ffffff10}.food-selected{padding:14px;border:1px solid var(--acc);border-radius:12px;margin:16px 0}.food-weight{margin-top:16px}.nutrition input[readonly]{opacity:.75}.food-selected a{color:var(--acc)}
