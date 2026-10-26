@@ -24,7 +24,8 @@ COPY frontend/ ./
 # image built between two releases calls itself the same thing, and "which build are you running?"
 # cannot be answered from the phone. Unset, the app reports package.json's version as before.
 ARG APP_BUILD=""
-RUN APP_BUILD="$APP_BUILD" npm run build
+ARG APP_MODE="production"
+RUN APP_BUILD="$APP_BUILD" npm run build -- --mode "$APP_MODE"
 
 FROM nginxinc/nginx-unprivileged:alpine
 # Same reason as in api/Dockerfile: alpine fixes land faster than the nginx image is rebuilt.

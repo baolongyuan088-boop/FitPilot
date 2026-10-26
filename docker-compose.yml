@@ -2,9 +2,9 @@ name: opengym
 
 services:
   # Passkey auth + per-user data (Node, no framework).
-  # image: prebuilt (docker compose pull). build: from source (docker compose up --build).
+  # Build this fork from source; local image names avoid pulling upstream by mistake.
   api:
-    image: ghcr.io/duartesantos8/opengym-api:latest
+    image: fitpilot-api:local
     # Default target: no AI runtime, no AI dependency — the image every instance has always had.
     # To opt into the AI Coach, build the other target instead:
     #     API_TARGET=coach docker compose up --build api
@@ -35,10 +35,12 @@ services:
   # Builds the React frontend (multi-stage) and serves it, proxying /api → api
   # and the exercise animations, which are part of the image. Single origin for passkeys.
   web:
-    image: ghcr.io/duartesantos8/opengym-web:latest
+    image: fitpilot-web:local
     build:
       context: .
       dockerfile: web/Dockerfile
+      args:
+        APP_MODE: fitpilot
     restart: unless-stopped
     depends_on:
       api:
