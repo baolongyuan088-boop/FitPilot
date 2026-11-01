@@ -104,3 +104,23 @@ test('repeated wrong passwords block further login attempts', async () => {
   assert.equal((await call('/api/login/password', 'POST', { name: 'Owner', password: 'long-password-123' })).status, 429);
   cleanup();
 });
+
+test('registration prevents username/email ambiguity without consuming the invite', async () => {
+  const { call, cleanup } = fixture();
+  await call('/api/register/password', 'POST', { name: 'Owner', email: 'owner@example.test', password: 'long-password-123', code: env.FITPILOT_BOOTSTRAP_CODE });
+  const code = (await call('/api/admin/invites/new', 'POST', {})).data.invite.code;
+  assert.equal((await call('/api/register/password', 'POST', { name: 'OWNER@example.test', password: 'long-password-456', code })).status, 409);
+  assert.equal((await call('/api/register/password', 'POST', { name: 'Friend', password: 'long-password-456', code })).status, 200);
+  cleanup();
+});
+
+test('malformed and oversized request bodies fail before authentication work', async () => {
+  const { db, cleanup } = fixture();
+  for (const value of ['null', '[]', '"text"']) {
+    const request = new Request('https://fit.example/api/login/password', { method: 'POST', body: value });
+    assert.equal((await handle(request, db, env)).status, 400);
+  }
+  const huge = new Request('https://fit.example/api/login/password', { method: 'POST', body: JSON.stringify({ name: 'owner', password: 'a'.repeat(6 * 1024 * 1024) }) });
+  assert.equal((await handle(huge, db, env)).status, 413);
+  cleanup();
+});

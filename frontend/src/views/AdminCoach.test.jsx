@@ -132,6 +132,16 @@ const chip = label => [...host.querySelectorAll('button.chip')].find(b => b.text
 const master = () => host.querySelector('[role="switch"]')
 const sent = path => mocks.calls.filter(c => c.path === path)
 
+it('renders a cloud-managed status without requesting unsupported credential operations', async () => {
+  mocks.routes['/api/admin/coach'] = { managedBy: 'environment', enabled: true, model: 'beta-model', auth: { state: 'connected' } }
+  await mount()
+  expect(host.textContent).toContain('模型已配置：beta-model')
+  expect(master()).toBeNull()
+  expect(btn('Remove')).toBeUndefined()
+  await tap(btn('刷新状态'))
+  expect(mocks.calls.every(c => c.method === 'GET')).toBe(true)
+})
+
 // React's onBlur is `focusout`. The value goes in through the native prototype setter so React's
 // value tracker sees it, exactly as the repo's other input tests do.
 const blurWith = async (el, value) => {

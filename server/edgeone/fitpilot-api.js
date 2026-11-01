@@ -1,7 +1,8 @@
 import { randomBytes, randomUUID, createHash, createHmac, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
-import { stampPut } from '../api/sync-stamps.js';
+import { stampPut } from '../../api/sync-stamps.js';
 import { coachRoute, coachSchema, publicCoach } from './fitpilot-coach.js';
+import { accountRoute, accountSchema } from './fitpilot-accounts.js';
 
 const scrypt = promisify(scryptCallback);
 const maxBody = 5 * 1024 * 1024;
@@ -22,6 +23,7 @@ async function schema(db) {
     `CREATE TABLE IF NOT EXISTS fp_login_attempts (key TEXT PRIMARY KEY, failures INTEGER NOT NULL, blocked_until INTEGER NOT NULL)`
   ], 'write');
   await coachSchema(db);
+  await accountSchema(db);
   schemaReady.add(db);
 }
 
@@ -71,9 +73,24 @@ async function currentUser(request, db, secret) {
 async function bodyOf(request) {
   const size = Number(request.headers.get('content-length') || 0);
   if (size > maxBody) throw Object.assign(new Error('too large'), { status: 413 });
-  const text = await request.text();
-  if (Buffer.byteLength(text) > maxBody) throw Object.assign(new Error('too large'), { status: 413 });
-  try { return JSON.parse(text); } catch { throw Object.assign(new Error('invalid JSON'), { status: 400 }); }
+  const chunks = [];
+  let bytes = 0;
+  const reader = request.body?.getReader();
+  if (reader) {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > maxBody) { await reader.cancel(); throw Object.assign(new Error('too large'), { status: 413 }); }
+      chunks.push(Buffer.from(value));
+    }
+  }
+  const text = Buffer.concat(chunks).toString('utf8');
+  try {
+    const value = JSON.parse(text);
+    if (!value || Array.isArray(value) || typeof value !== 'object') throw new Error('object required');
+    return value;
+  } catch { throw Object.assign(new Error('invalid JSON'), { status: 400 }); }
 }
 async function failedLogin(db, key) {
   const now = Date.now();
@@ -97,7 +114,11 @@ export async function handle(request, db, env) {
   if (!['GET', 'HEAD'].includes(request.method) && !sameOrigin(request)) return error('origin', 403);
   try {
     await schema(db);
-    if (route === 'GET /api/config') return json({ invite_only: true, allow_guest: false, password_login: true, passkey_login: false, default_lang: 'zh-CN', coach: publicCoach(env) });
+    if (route === 'GET /api/health') {
+      await db.execute('SELECT 1');
+      return json({ ok: true, database: 'connected', deployment: 'edgeone', aiConfigured: !!publicCoach(env) });
+    }
+    if (route === 'GET /api/config') return json({ invite_only: true, allow_guest: false, password_login: true, passkey_login: false, default_lang: 'zh-CN', coach: publicCoach(env), deployment: 'edgeone', capabilities: { media: false, push: false, passkeys: false, adminCoachConfig: false, accountRecovery: true } });
     if (route === 'POST /api/register/password') {
       const body = await bodyOf(request);
       const name = String(body.name || '').trim();
@@ -123,6 +144,8 @@ export async function handle(request, db, env) {
       const now = new Date().toISOString();
       const tx = await db.transaction('write');
       try {
+        const collision = await tx.execute({ sql: 'SELECT id FROM fp_users WHERE name_key=? OR email=? OR name_key=? OR email=? LIMIT 1', args: [nameKey, nameKey, email, email] });
+        if (collision.rows.length) { await tx.rollback(); return error('name-taken', 409); }
         if (admin) {
           const n = (await tx.execute('SELECT count(*) AS n FROM fp_users')).rows[0].n;
           if (Number(n) !== 0) throw Object.assign(new Error('invite'), { status: 403 });
@@ -144,6 +167,7 @@ export async function handle(request, db, env) {
       const body = await bodyOf(request);
       const identifier = fold(body.identifier ?? body.name ?? body.email).slice(0, 254);
       const password = String(body.password || '');
+      if (password.length > 1024) return error('bad-credentials', 401);
       const key = digest(identifier);
       if (!identifier || await blocked(db, key)) return error('locked', 429);
       const row = (await db.execute({ sql: 'SELECT * FROM fp_users WHERE name_key=? OR email=? LIMIT 1', args: [identifier, identifier] })).rows[0];
@@ -156,7 +180,14 @@ export async function handle(request, db, env) {
     }
     if (route === 'POST /api/logout') return json({ ok: true }, 200, { 'Set-Cookie': clearCookie });
     const user = await currentUser(request, db, env.FITPILOT_SESSION_SECRET);
+    const account = await accountRoute(request, db, env, user, route, bodyOf, { hashPassword, validPassword, setCookie, publicUser });
+    if (account) return account;
     if (!user) return error('unauthorized', 401, 'not signed in');
+    if (route === 'GET /api/admin/coach') {
+      if (!user.admin) return error('forbidden', 403);
+      return json({ managedBy: 'environment', enabled: !!publicCoach(env), model: env.FITPILOT_AI_MODEL || '',
+        provider: 'compatible', baseUrl: env.FITPILOT_AI_BASE_URL || '', auth: { state: publicCoach(env) ? 'connected' : 'none' } });
+    }
     if (pathname.startsWith('/api/coach/')) {
       const coach = await coachRoute(request, db, env, user, route, bodyOf);
       if (coach) return coach;
@@ -197,6 +228,9 @@ export async function handle(request, db, env) {
         const encoded = JSON.stringify(state);
         await tx.execute({ sql: `INSERT INTO fp_documents(user_id,rev,wid,state) VALUES (?,?,?,?)
           ON CONFLICT(user_id) DO UPDATE SET rev=excluded.rev,wid=excluded.wid,state=excluded.state`, args: [user.id, state._rev, wid, encoded] });
+        if (!state.coach?.consent?.agreedAt) {
+          await tx.execute({ sql: 'UPDATE fp_coach SET current=NULL,pending=NULL,last=NULL,generation=generation+1 WHERE user_id=?', args: [user.id] });
+        }
         await tx.commit();
         return json({ ok: true, rev: state._rev, wid });
       } catch (e) { try { await tx.rollback(); } catch {} throw e; }

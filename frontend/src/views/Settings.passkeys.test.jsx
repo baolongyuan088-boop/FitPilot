@@ -82,6 +82,16 @@ afterEach(() => { act(() => { mounted.splice(0).forEach(({ root, host }) => { ro
 const asked = path => mocks.api.mock.calls.filter(([p]) => p === path).length
 
 describe('Settings: passkeys and another device', () => {
+  it('password-only cloud deployment does not fetch or offer passkey and device pairing routes', async () => {
+    mocks.config = { password_login: true, passkey_login: false, capabilities: { passkeys: false } }
+    const page = mount(<Settings page="account" />)
+    await settle()
+    expect(titles(page)).not.toContain('Passkeys')
+    expect(titles(page)).not.toContain('Add another device')
+    expect(titles(page)).not.toContain('Pair the mobile app')
+    expect(titles(page)).toContain('Password')
+    expect(asked('/api/account/passkeys')).toBe(0)
+  })
   it('a signed-in browser lists its passkeys and offers a code for another device, in Account', async () => {
     const page = mount(<Settings page="account" />)
     await settle()

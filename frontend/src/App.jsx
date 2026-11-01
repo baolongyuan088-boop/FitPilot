@@ -132,9 +132,9 @@ function Shell() {
   // lib/push.js): a subscription the instance lost is back before the next reminder is due,
   // with nobody having to visit Settings. Web only — the APK has no service worker.
   useEffect(() => {
-    if (MOBILE || !user || !ready) return
+    if (MOBILE || !user || !ready || config?.capabilities?.push === false) return
     syncPushSubscription().catch(() => {})
-  }, [user?.id, ready])
+  }, [user?.id, ready, config?.capabilities?.push])
   // Opened from a device-link QR code (#95): once boot knows who is here, the sheet that redeems
   // it opens by itself — over the sign-in screen, or over the app for a guest or a signed-in
   // browser. Once per visit; closed, the code stays for the sign-in screen's own button.

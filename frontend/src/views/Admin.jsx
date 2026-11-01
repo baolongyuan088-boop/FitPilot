@@ -254,6 +254,7 @@ function AuditCard({ tick }) {
 export default function Admin() {
   const nav = useNavigate()
   const user = useStore(s => s.user)
+  const config = useStore(s => s.config)
   const openSheet = useUI(s => s.openSheet)
   const [users, setUsers] = useState(null)
   const [usersErr, setUsersErr] = useState(null)   // why the last load failed, until one succeeds
@@ -337,6 +338,6 @@ export default function Admin() {
       </div>
     </div>
 
-    <div style={{ marginTop: 14 }}><AuditCard tick={tick} /></div>
+    {config?.deployment !== 'edgeone' && <div style={{ marginTop: 14 }}><AuditCard tick={tick} /></div>}
   </div>
 }

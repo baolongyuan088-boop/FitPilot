@@ -5,6 +5,7 @@ import { api } from '../lib/api.js'
 import './ai-connect.css'
 export default function AiConnect() {
  const user = useStore(s=>s.user)
+ const appConfig = useStore(s=>s.config)
  const nav = useNavigate()
  const [config,setConfig] = useState(null)
  const [model,setModel] = useState('')
@@ -35,13 +36,16 @@ export default function AiConnect() {
   finally {setBusy(false)}
  }
  const saved = config?.provider==='compatible' && config?.baseUrl==='https://ark.cn-beijing.volces.com/api/v3' && config?.auth?.state==='connected'
+ const managed = config?.managedBy === 'environment' || appConfig?.capabilities?.adminCoachConfig === false
+ const ready = config ? !!(config.enabled && config.auth?.state === 'connected') : !!appConfig?.coach?.enabled
  return <div className="narrow ai-connect">
   <button className="ai-back" onClick={()=>nav('/home')}>← 返回首页</button>
-  <header className="ai-intro"><span className="ai-eyebrow">轻燃 AI</span><h1>让每次训练<br/>都有下一步</h1><p>连接你的模型，获得计划与训练复盘。</p></header>
-  <div className="ai-steps"><span className={!user?'current':''}>01 登录</span><span className={user&&!passed?'current':''}>02 连接模型</span><span className={passed?'current':''}>03 开始使用</span></div>
+  <header className="ai-intro"><span className="ai-eyebrow">轻燃 AI</span><h1>让每次训练<br/>都有下一步</h1><p>{managed ? '结合你的训练记录，获得计划与训练复盘。' : '连接你的模型，获得计划与训练复盘。'}</p></header>
+  {!managed && <div className="ai-steps"><span className={!user?'current':''}>01 登录</span><span className={user&&!passed?'current':''}>02 连接模型</span><span className={passed?'current':''}>03 开始使用</span></div>}
   {!user ? <section className="ai-panel"><div className="ai-symbol">✦</div><h2>先登录，记住你的进步</h2><p>登录后，教练才能结合你的训练记录给出建议。</p><button className="ai-primary" onClick={()=>useStore.getState().setGuest(false)}>登录或创建账号 →</button><div className="ai-footnote">已有的访客记录会保留。</div></section>
-  : !user.admin ? <section className="ai-panel"><h2>由管理员连接模型</h2><p>当前账号没有配置权限。已开通服务时，你可以直接进入教练。</p><button className="ai-primary" onClick={()=>nav('/coach')}>打开教练</button></section>
+  : !user.admin ? <section className="ai-panel"><h2>{appConfig?.coach?.enabled ? '教练已准备好' : '教练暂未开放'}</h2><p>{appConfig?.coach?.enabled ? '先确认愿意分享的训练数据，再开始制定计划或复盘。' : '请等待管理员开通服务，你可以先记录训练。'}</p>{appConfig?.coach?.enabled && <button className="ai-primary" onClick={()=>nav('/coach')}>打开教练</button>}</section>
   : !config ? <section className="ai-panel"><p role="status">{failed?'配置加载失败，请重试。':'正在读取连接状态…'}</p>{failed && <button className="ai-primary" onClick={()=>{setFailed(false);setRetry(n=>n+1)}}>重试</button>}</section>
+  : managed ? <section className="ai-panel"><div className="ai-provider"><div><h2>{ready ? '模型配置已就绪' : '教练暂未开放'}</h2><p>{model || '等待配置模型'}</p></div><span className="ai-tag">{ready ? '已配置' : '待配置'}</span></div><p>{ready ? '可以进入教练发起一次请求。首次回复成功后，才能确认模型连接正常。' : '请在腾讯云项目的服务端环境变量中填写模型地址、模型 ID 和 API Key，然后重新部署。'}</p>{!ready && <p className="ai-footnote">配置项：FITPILOT_AI_BASE_URL、FITPILOT_AI_MODEL、FITPILOT_AI_API_KEY。密钥无需填写到网页中。</p>}{ready && <button className="ai-primary" onClick={()=>nav('/coach')}>打开教练 →</button>}<button className="ai-back" onClick={()=>{setConfig(null);setFailed(false);setRetry(n=>n+1);useStore.getState().refreshConfig()}}>刷新连接状态</button></section>
   : config.disabledByEnv ? <section className="ai-panel"><h2>服务暂未开启</h2><p>本机后台禁用了 AI，请先在服务配置中解除禁用。</p></section>
   : <form className="ai-panel" onSubmit={connect}>
     <div className="ai-provider"><div><h2>火山方舟</h2><p>{model || '选择你已开通的模型'}</p></div><span className="ai-tag">{passed?'已连接':saved?'已保存密钥':'待连接'}</span></div>

@@ -11,9 +11,10 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true
 // switch, and once it is on, a tone. Both the self-hosted card (web push) and the mobile card
 // (native notifications) carry it, and only while the reminder itself is on.
 const mocks = vi.hoisted(() => {
-  const state = { S: null, MOBILE: false }
+  const state = { S: null, MOBILE: false, config: null }
   state.snapshot = () => ({
     S: state.S,
+    config: state.config,
     user: { id: 'u1', name: 'One' },
     update: mut => {
       const next = structuredClone(state.S)
@@ -64,6 +65,7 @@ let host, root
 beforeEach(() => {
   sheet = null
   mocks.MOBILE = false
+  mocks.config = null
   mocks.S = {
     unit: 'kg', restSec: 90, restPauseSec: 15, sound: false, effort: 'none',
     gifSize: 'full', workouts: [], routines: [], exWeights: {},
@@ -79,6 +81,12 @@ afterEach(() => {
 })
 
 const mount = async () => { await act(async () => { root.render(<Settings page="reminders" />) }) }
+it('shows cloud reminder availability instead of an unusable subscription switch', async () => {
+  mocks.config = { capabilities: { push: false } }
+  await mount()
+  expect(host.textContent).toContain('内测版暂不支持后台提醒')
+  expect(host.querySelector('[role=switch]')).toBeNull()
+})
 const row = text => [...host.querySelectorAll('.lrow')].find(r => r.textContent.includes(text))
 const nudgeRow = () => row('Nudge me when I skip a planned workout')
 const toneRow = () => row('Nudge tone')

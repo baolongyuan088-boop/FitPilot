@@ -115,6 +115,12 @@ export default function AdminCoach() {
 
   if (!d) return <div className="card"><div className="muted small">Loading Coach status…</div></div>
 
+  if (d.managedBy === 'environment') return <div className="card">
+    <h2 style={{ margin: '0 0 6px' }}>AI 教练</h2>
+    <div className="adm-lead">{d.enabled && d.auth?.state === 'connected' ? `模型已配置：${d.model || '未指定'}。实际连接以教练成功回复为准。` : '模型尚未配置完整。请在腾讯云项目的服务端环境变量中完成配置并重新部署。'}</div>
+    <Button size="sm" onClick={load}>刷新状态</Button>
+  </div>
+
   if (d.disabledByEnv) return <div className="card">
     <h2 style={{ margin: '0 0 6px' }}>AI Coach</h2>
     <div className="adm-lead">Force-disabled by <code>COACH_DISABLED</code> in the server's environment. Remove that variable and restart to configure the Coach here.</div>

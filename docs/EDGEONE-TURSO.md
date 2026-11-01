@@ -1,6 +1,6 @@
 # FitPilot 内测：EdgeOne + Turso
 
-## 当前状态（2026-11-01）
+## 当前状态（2026-11-02）
 
 - EdgeOne Makers 已有 `fitpilot` 项目，但控制台只显示预览入口，尚无可分享的公开域名；Cloud Functions 没有调用记录。不要把这个项目当成已上线的完整应用。
 - Turso 账户下已创建独立的 `fitpilot-beta` 数据库（默认组，东京区域）。它目前是空库，未配置访问令牌，也没有导入 FitPilot 用户或训练数据。
@@ -28,4 +28,13 @@
 
 AI 教练仅在服务端环境变量 `FITPILOT_AI_BASE_URL`、`FITPILOT_AI_MODEL`、`FITPILOT_AI_API_KEY` 全部设置后显示。Base URL 必须为 HTTPS 的 OpenAI-compatible Chat Completions API 根路径，例如平台提供的 `/api/v3`；模型 ID 以平台控制台当前开通的值为准。密钥不进入前端。账号与同步还需 `TURSO_DATABASE_URL`、`TURSO_AUTH_TOKEN`、`FITPILOT_SESSION_SECRET` 和 `FITPILOT_BOOTSTRAP_CODE`。首次管理员使用初始化邀请码注册；部署后不要把此邀请码发给朋友。
 
-密码找回、通行密钥、照片媒体、提醒、完整管理员操作及原有全部同步兼容性仍未迁移。AI 教练的后台队列和跨用户总量限额尚未迁移；当前实现为请求内同步调用，按用户每日限额控制。前端只对已知不支持通行密钥的服务端隐藏该入口。这个分支**不可作为完整内测版上线**。用户自行填写的令牌、模型密钥、管理员初始化邀请码和会话签名密钥还未配置；域名绑定与手机端到端测试也未完成。当前没有可安全分享给朋友的 FitPilot 正式链接。
+密码重置、当前密码验证、退出全部设备、管理员查看/停用/删除账户已经迁移。通行密钥、设备配对、照片上传、后台提醒与审计暂不支持，对应入口已经关闭。AI 教练采用请求内同步调用，每位用户每日 3 个任务，全站默认每日 30 个任务（FITPILOT_AI_DAILY_LIMIT），按 UTC 计数；每个任务可进行有限的模型重试和一次回答修复。模型整体等待限制为 45 秒。此版本面向密码账号、记录同步和 AI 教练的限定内测，尚未完成云端验收。用户自行填写的令牌、模型密钥、管理员初始化邀请码和会话签名密钥还未配置；域名绑定与手机端到端测试也未完成。当前没有可安全分享给朋友的 FitPilot 正式链接。
+
+
+## 当前部署操作
+
+2026-11-02 已核对控制台：原项目根目录为 frontend，构建命令带 VITE_DEMO=1；生产仍指向 main。已将项目根目录改为 ./、输出目录 frontend/dist、安装命令 npm ci && npm --prefix frontend ci、构建命令 npm run build。仓库新增 edgeone.json 固定构建配置与 60 秒云函数限制（[平台配置文档](https://makers.edgeone.link/document/edgeone-json)）。后端代码与测试位于 server/edgeone，仅 cloud-functions/api/[[default]].js 作为函数入口。
+
+部署时选择 edgeone-turso 分支。Turso 控制台详情初次偶发 Oops，刷新后可见 fitpilot-beta，URL 已抄入本地 .env.edgeone.local。此文件有独立随机会话密钥和初始化邀请码，权限 0600 且被 gitignore 排除。用户需替换数据库令牌、模型 ID、API Key 三个占位值，并在腾讯云项目设置的环境变量窗口批量导入。不要把此文件提交到仓库。
+
+部署后先检查 /api/health（仅证明数据库可达和是否配置模型），然后实际验收注册、退出重登、跨用户隔离、两设备同步、AI 返回及确认。中国大陆项目仍需要自定义域名，域名与可分享入口尚待核实；构建成功不等于手机可访问。
