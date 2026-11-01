@@ -2,8 +2,8 @@
   "installCommand": "npm ci && npm --prefix frontend ci",
   "buildCommand": "npm run build",
   "outputDirectory": "frontend/dist",
-  "nodeVersion": "22.22.0",
+  "nodeVersion": "22.21.1",
   "cloudFunctions": {
-    "nodejs": { "maxDuration": 60 }
+    "maxDuration": 60
   }
 }
