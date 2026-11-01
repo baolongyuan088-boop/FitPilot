@@ -55,3 +55,21 @@ test('state write rejects stale revision and keeps the other device data', async
   assert.equal((await call('/api/data/rev', 'GET', null, one)).data.wid, first.data.wid);
   cleanup();
 });
+
+test('one invite cannot create two users even when redeemed concurrently', async () => {
+  const { call, cleanup } = fixture();
+  await call('/api/register/password', 'POST', { name: 'Owner', password: 'long-password-123', code: env.FITPILOT_BOOTSTRAP_CODE });
+  const code = (await call('/api/admin/invites/new', 'POST', {})).data.invite.code;
+  const attempts = await Promise.all(['A', 'B'].map(name => call('/api/register/password', 'POST', { name, password: 'long-password-456', code }, '')));
+  assert.deepEqual(attempts.map(x => x.status).sort(), [200, 403]);
+  cleanup();
+});
+
+test('repeated wrong passwords block further login attempts', async () => {
+  const { call, cleanup } = fixture();
+  await call('/api/register/password', 'POST', { name: 'Owner', password: 'long-password-123', code: env.FITPILOT_BOOTSTRAP_CODE });
+  await call('/api/logout', 'POST');
+  for (let i = 0; i < 5; i++) assert.equal((await call('/api/login/password', 'POST', { name: 'Owner', password: 'wrong-password' })).status, 401);
+  assert.equal((await call('/api/login/password', 'POST', { name: 'Owner', password: 'long-password-123' })).status, 429);
+  cleanup();
+});
