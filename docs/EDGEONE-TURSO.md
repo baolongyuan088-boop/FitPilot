@@ -2,7 +2,7 @@
 
 ## 当前状态（2026-11-02）
 
-- EdgeOne Makers 已有 `fitpilot` 项目，但控制台只显示预览入口，尚无可分享的公开域名；Cloud Functions 没有调用记录。不要把这个项目当成已上线的完整应用。
+- EdgeOne Makers 的 `fitpilot` 项目已成功发布 `edgeone-turso` 分支预览部署 `dp1g85q2mrlz`（代码 `101ff75`），生成 Node 云函数路由 `/api/*`。实际访问 `/api/health` 已返回缺少数据库地址、数据库令牌和会话签名密钥的配置错误，证明请求已进入新后端；数据库和 AI 尚未接通。控制台仅提供 3 小时限时预览，尚无可分享的公开域名。
 - Turso 账户下已创建独立的 `fitpilot-beta` 数据库（默认组，东京区域）。它目前是空库，未配置访问令牌，也没有导入 FitPilot 用户或训练数据。
 - GitHub 的 FitPilot 主分支仍使用本地持久化 Node API。现有 EdgeOne 构建不是账户、邀请、同步和 AI 的可用后端。
 
@@ -24,7 +24,7 @@
 
 ## 尚未完成
 
-`edgeone-turso` 分支已实现 EdgeOne Cloud Function 的第一版：密码注册和登录、单次邀请码、管理员列表、按用户记录同步及版本冲突保护。AI 教练接口现支持计划生成、训练复盘、训练回顾、建议确认和撤回同意后的服务端清除。模型调用复用原有数据白名单、回答校验和确认流程；每位用户每天最多 3 次，并限制单次请求时间。本地 SQLite 接口测试和前端构建通过。尚未在 Turso 远程数据库或 EdgeOne 上验证。
+`edgeone-turso` 分支已实现 EdgeOne Cloud Function 的第一版：密码注册和登录、单次邀请码、管理员列表、按用户记录同步及版本冲突保护。AI 教练接口现支持计划生成、训练复盘、训练回顾、建议确认和撤回同意后的服务端清除。模型调用复用原有数据白名单、回答校验和确认流程；每位用户每天最多 3 次，并限制单次请求时间。本地 SQLite 接口测试和前端构建通过，EdgeOne 构建与函数启动已经实测。Turso 远程数据读写和真实模型返回尚未验证。
 
 AI 教练仅在服务端环境变量 `FITPILOT_AI_BASE_URL`、`FITPILOT_AI_MODEL`、`FITPILOT_AI_API_KEY` 全部设置后显示。Base URL 必须为 HTTPS 的 OpenAI-compatible Chat Completions API 根路径，例如平台提供的 `/api/v3`；模型 ID 以平台控制台当前开通的值为准。密钥不进入前端。账号与同步还需 `TURSO_DATABASE_URL`、`TURSO_AUTH_TOKEN`、`FITPILOT_SESSION_SECRET` 和 `FITPILOT_BOOTSTRAP_CODE`。首次管理员使用初始化邀请码注册；部署后不要把此邀请码发给朋友。
 
@@ -34,6 +34,8 @@ AI 教练仅在服务端环境变量 `FITPILOT_AI_BASE_URL`、`FITPILOT_AI_MODEL
 ## 当前部署操作
 
 2026-11-02 已核对控制台：原项目根目录为 frontend，构建命令带 VITE_DEMO=1；生产仍指向 main。已将项目根目录改为 ./、输出目录 frontend/dist、安装命令 npm ci && npm --prefix frontend ci、构建命令 npm run build。仓库新增 edgeone.json 固定构建配置与 60 秒云函数限制（[平台配置文档](https://makers.edgeone.link/document/edgeone-json)）。后端代码与测试位于 server/edgeone，仅 cloud-functions/api/[[default]].js 作为函数入口。
+
+首轮构建因 Node.js 22.22.0 不在平台预装列表中失败，已改为控制台实际提供的 22.21.1；按 builder 20260817 的提示，将限制配置写为 cloudFunctions.maxDuration。修正后构建和部署共 59 秒，云函数地域为 ap-guangzhou。生产分支 main 尚未切换；后续应先验收迁移分支，再切换生产。
 
 部署时选择 edgeone-turso 分支。Turso 控制台详情初次偶发 Oops，刷新后可见 fitpilot-beta，URL 已抄入本地 .env.edgeone.local。此文件有独立随机会话密钥和初始化邀请码，权限 0600 且被 gitignore 排除。用户需替换数据库令牌、模型 ID、API Key 三个占位值，并在腾讯云项目设置的环境变量窗口批量导入。不要把此文件提交到仓库。
 

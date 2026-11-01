@@ -48,7 +48,8 @@ function mount(el) {
 const buttons = host => [...host.querySelectorAll('button')].map(b => b.textContent)
 const button = (host, text) => [...host.querySelectorAll('button')].find(b => b.textContent === text)
 
-beforeEach(() => { mocks.webauthn = true; mocks.config = null; mocks.sheets.length = 0 })
+// A successful response from a legacy server omits password_login; null means fetch failed.
+beforeEach(() => { mocks.webauthn = true; mocks.config = {}; mocks.sheets.length = 0 })
 afterEach(() => { act(() => { mounted.splice(0).forEach(({ root, host }) => { root.unmount(); host.remove() }) }) })
 
 describe('Login with password sign-in', () => {

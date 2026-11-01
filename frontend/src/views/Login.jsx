@@ -68,8 +68,13 @@ function RegisterSheet({ close }) {
 }
 
 export default function Login() {
-  const { setUser, adoptProfile, setGuest } = useStore()
+  const { setUser, adoptProfile, setGuest, refreshConfig } = useStore()
   const config = useStore(s => s.config)
+  const [retrying, setRetrying] = useState(false)
+  const retry = async () => {
+    setRetrying(true)
+    try { await refreshConfig() } finally { setRetrying(false) }
+  }
   const canGuest = guestAllowed(config)
   const pwOn = passwordOn(config)
   const passkeyOn = webauthnOK() && config?.passkey_login !== false
@@ -98,6 +103,18 @@ export default function Login() {
       </div>
     </div>
   )
+
+  // App waits for boot's config request before rendering Login. No config here means the
+  // request failed, not that this server offers legacy passkeys or unrestricted guest mode.
+  // Existing signed-in/guest copies still follow App's offline path; demo stays local above.
+  if (!config) return <div className="narrow" style={wrap}>
+    {head}
+    <div className="card" role="status" aria-live="polite" style={{ marginTop: 20 }}>
+      <h2>{retrying ? '正在连接服务…' : '服务暂时不可用'}</h2>
+      <p className="muted">{retrying ? '正在读取登录配置，请稍候。' : '暂时无法读取登录配置，请稍后重试。如果持续出现，请联系管理员检查部署。'}</p>
+      <Button variant="primary" disabled={retrying} onClick={retry}>{retrying ? '正在重试…' : '重试连接'}</Button>
+    </div>
+  </div>
 
   return (
     <div className="narrow" style={wrap}>
