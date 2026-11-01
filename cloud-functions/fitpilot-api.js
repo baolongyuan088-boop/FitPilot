@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID, createHash, createHmac, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { stampPut } from '../api/sync-stamps.js';
+import { coachRoute, coachSchema, publicCoach } from './fitpilot-coach.js';
 
 const scrypt = promisify(scryptCallback);
 const maxBody = 5 * 1024 * 1024;
@@ -20,6 +21,7 @@ async function schema(db) {
     `CREATE TABLE IF NOT EXISTS fp_documents (user_id TEXT PRIMARY KEY, rev INTEGER NOT NULL, wid TEXT NOT NULL, state TEXT NOT NULL)`,
     `CREATE TABLE IF NOT EXISTS fp_login_attempts (key TEXT PRIMARY KEY, failures INTEGER NOT NULL, blocked_until INTEGER NOT NULL)`
   ], 'write');
+  await coachSchema(db);
   schemaReady.add(db);
 }
 
@@ -95,7 +97,7 @@ export async function handle(request, db, env) {
   if (!['GET', 'HEAD'].includes(request.method) && !sameOrigin(request)) return error('origin', 403);
   try {
     await schema(db);
-    if (route === 'GET /api/config') return json({ invite_only: true, allow_guest: false, password_login: true, passkey_login: false, default_lang: 'zh-CN', coach: null });
+    if (route === 'GET /api/config') return json({ invite_only: true, allow_guest: false, password_login: true, passkey_login: false, default_lang: 'zh-CN', coach: publicCoach(env) });
     if (route === 'POST /api/register/password') {
       const body = await bodyOf(request);
       const name = String(body.name || '').trim();
@@ -155,6 +157,10 @@ export async function handle(request, db, env) {
     if (route === 'POST /api/logout') return json({ ok: true }, 200, { 'Set-Cookie': clearCookie });
     const user = await currentUser(request, db, env.FITPILOT_SESSION_SECRET);
     if (!user) return error('unauthorized', 401, 'not signed in');
+    if (pathname.startsWith('/api/coach/')) {
+      const coach = await coachRoute(request, db, env, user, route, bodyOf);
+      if (coach) return coach;
+    }
     if (route === 'GET /api/me') return json({ user: publicUser(user) });
     if (route === 'GET /api/data' || route === 'GET /api/data/rev') {
       const row = (await db.execute({ sql: 'SELECT rev,wid,state FROM fp_documents WHERE user_id=?', args: [user.id] })).rows[0];
