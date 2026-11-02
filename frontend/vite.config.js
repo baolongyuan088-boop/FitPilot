@@ -100,8 +100,9 @@ const flavor = {
 const pkgVersion = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
 const appVersion = process.env.APP_BUILD ? `${pkgVersion}+${process.env.APP_BUILD}` : pkgVersion
 
-export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(appVersion) },
+export default defineConfig(({ mode }) => ({
+  // The deployed account app must not inherit VITE_DEMO=1 from an old hosting setup.
+  define: { __APP_VERSION__: JSON.stringify(appVersion), ...(mode === 'fitpilot' ? { 'import.meta.env.VITE_DEMO': JSON.stringify('0') } : {}) },
   plugins: [react(), umami, flavor, swStamp, catalogueMedia],
   base: './',
   server: {
@@ -117,4 +118,4 @@ export default defineConfig({
     }
   },
   build: { chunkSizeWarningLimit: 1500 }
-})
+}))

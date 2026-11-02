@@ -120,6 +120,11 @@ export default function Login() {
     <div className="narrow" style={wrap}>
       {head}
       <div className="muted" style={{ marginBottom: 34 }}>{t('Your workouts. Your weights. Your profile.')}</div>
+      {config.deployment === 'edgeone' && <div className="card small muted" style={{ textAlign: 'start', marginBottom: 16 }}>
+        <strong style={{ color: 'var(--fg)' }}>用自己的账号，记录自己的改变</strong>
+        <p>首次使用，点击“注册账号”，设置账号名和密码{config.invite_only ? '，填写朋友分享的邀请码' : ''}。以后直接用账号密码登录，继续查看自己的训练和饮食记录。</p>
+        {config.coach && <p>登录后可使用 AI 教练，无需填写模型密钥。</p>}
+      </div>}
       {passkeyOn ? <>
         <Button variant="primary" icon="fingerprint" onClick={signIn}>{t('Sign in with passkey')}</Button>
         <div style={{ height: 10 }} />
@@ -144,6 +149,11 @@ export default function Login() {
         // so say that plainly instead of offering a local profile that cannot be created.
         : t("This browser doesn't support passkeys, and this instance requires an account. Try a browser or device with passkey support.")}</div>}
       {canGuest && <Button variant="ghost" className="dim" onClick={() => setGuest(true)}>{t('Continue without account')}</Button>}
+      {config.deployment === 'edgeone' && <details className="card small muted" style={{ textAlign: 'start', marginTop: 18 }}>
+        <summary style={{ cursor: 'pointer' }}>添加到手机桌面</summary>
+        <p>iPhone：用 Safari 打开应用网址，点“分享”→“添加到主屏幕”。安卓：用 Chrome 打开，在菜单中选择“添加到主屏幕”或“安装应用”。</p>
+        <p>添加后，从手机桌面的“轻燃”图标打开，使用同一个账号登录。</p>
+      </details>}
       <div className="dim small" style={{ marginTop: 26, lineHeight: 1.5 }}>{passkeyOn ? (pwOn ? t('Passkeys use {0}. A password works too, where passkeys do not.', bio()) : t('Passkeys use {0}. No passwords to remember.', bio())) : t('Use your name and password to sign in.')}<br />{t('Each profile keeps its own plan, workouts & body weight.')}</div>
     </div>
   )

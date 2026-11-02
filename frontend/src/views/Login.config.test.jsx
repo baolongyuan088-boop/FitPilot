@@ -50,3 +50,13 @@ it('demo stays usable without a backend config', async () => {
   expect(host.textContent).not.toContain('服务暂时不可用')
   expect(mocks.api).not.toHaveBeenCalled()
 })
+
+it('the deployed account app offers registration and login without guest access', async () => {
+  useStore.setState({ config: { deployment: 'edgeone', invite_only: true, allow_guest: false,
+    password_login: true, passkey_login: false, coach: { enabled: true } } })
+  await act(async () => root.render(<Login />))
+  expect(buttons()).toEqual(['Sign in with password', 'Create new profile'])
+  expect(host.textContent).toContain('以后直接用账号密码登录')
+  expect(host.textContent).toContain('无需填写模型密钥')
+  expect(host.querySelector('details').textContent).toContain('添加到主屏幕')
+})
