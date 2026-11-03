@@ -1,0 +1,29 @@
+// !$*UTF8*$!
+{archiveVersion = 1; classes = {}; objectVersion = 56; objects = {
+53BF8829C55BD00D0BE8E7D8 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppDelegate.swift"; sourceTree = "<group>"; };
+B8B147DB578D62AEDFA2CD29 = { isa = PBXBuildFile; fileRef = 53BF8829C55BD00D0BE8E7D8; };
+13109F5FFD962FE7D8468580 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEndpoint.swift"; sourceTree = "<group>"; };
+6C8CF5585D8C92E00B7CACC4 = { isa = PBXBuildFile; fileRef = 13109F5FFD962FE7D8468580; };
+37DB969C4C9C7558B2D36589 = { isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
+14DB203584B37A2E8506449A = { isa = PBXBuildFile; fileRef = 37DB969C4C9C7558B2D36589; };
+DC79C81C4D6259B2F339417E = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AppConfiguration.plist"; sourceTree = "<group>"; };
+A5281B946530098497378E47 = { isa = PBXBuildFile; fileRef = DC79C81C4D6259B2F339417E; };
+D8B1F17AAE91A8EC1D5A16D0 = { isa = PBXFileReference; lastKnownFileType = text; path = "OpenSourceNotices.txt"; sourceTree = "<group>"; };
+DCBD767E906186908C9B50EB = { isa = PBXBuildFile; fileRef = D8B1F17AAE91A8EC1D5A16D0; };
+59F76123B5C9752ECAAB2B1C = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+118310C6E47B1E35D851D00D = { isa = PBXFileReference; explicitFileType = wrapper.application; path = FitPilot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+4D5A89DDE9E7EC335128B3F7 = { isa = PBXGroup; children = (43766C1D0F8C7B02480B16F1, 3F6D1E78B4FA897D3F2AC4C5,); sourceTree = "<group>"; };
+43766C1D0F8C7B02480B16F1 = { isa = PBXGroup; children = (53BF8829C55BD00D0BE8E7D8, 13109F5FFD962FE7D8468580, 37DB969C4C9C7558B2D36589, DC79C81C4D6259B2F339417E, D8B1F17AAE91A8EC1D5A16D0, 59F76123B5C9752ECAAB2B1C,); path = App; sourceTree = "<group>"; };
+3F6D1E78B4FA897D3F2AC4C5 = { isa = PBXGroup; children = (118310C6E47B1E35D851D00D,); name = Products; sourceTree = "<group>"; };
+DCE778F0DEBC4F095EF5112B = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B8B147DB578D62AEDFA2CD29, 6C8CF5585D8C92E00B7CACC4,); runOnlyForDeploymentPostprocessing = 0; };
+0EAE5B2C2061CBC77CFCA1AA = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (14DB203584B37A2E8506449A, A5281B946530098497378E47, DCBD767E906186908C9B50EB,); runOnlyForDeploymentPostprocessing = 0; };
+DB3D8BD10E31339E448AF1B0 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+ED81CA89E6AE6C6F3944E562 = { isa = PBXNativeTarget; buildConfigurationList = BE7F5747E17967B91B42CB5C; buildPhases = (DCE778F0DEBC4F095EF5112B, DB3D8BD10E31339E448AF1B0, 0EAE5B2C2061CBC77CFCA1AA,); buildRules = (); dependencies = (); name = FitPilot; productName = FitPilot; productReference = 118310C6E47B1E35D851D00D; productType = "com.apple.product-type.application"; };
+73F09685F035FF044435D5BA = { isa = PBXProject; attributes = { LastUpgradeCheck = 2710; TargetAttributes = { ED81CA89E6AE6C6F3944E562 = { CreatedOnToolsVersion = 27.1; ProvisioningStyle = Automatic; }; }; }; buildConfigurationList = BEFD021A7723529C05ECE831; compatibilityVersion = "Xcode 14.0"; developmentRegion = zh_CN; hasScannedForEncodings = 0; knownRegions = (zh_CN, en, Base,); mainGroup = 4D5A89DDE9E7EC335128B3F7; productRefGroup = 3F6D1E78B4FA897D3F2AC4C5; projectDirPath = ""; projectRoot = ""; targets = (ED81CA89E6AE6C6F3944E562,); };
+6790911F78BD668E714BFC80 = { isa = XCBuildConfiguration; buildSettings = { CLANG_ENABLE_MODULES = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; }; name = Debug; };
+6A45810F2A9E158830466E8A = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = App/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks",); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = site.baolongyuan.fitpilot.beta; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)"); }; name = Debug; };
+A14914BD3AC3B2E89E84875F = { isa = XCBuildConfiguration; buildSettings = { CLANG_ENABLE_MODULES = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; }; name = Release; };
+EE0C2F453FC802FADBA4E69B = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = App/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks",); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = site.baolongyuan.fitpilot.beta; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; SWIFT_OPTIMIZATION_LEVEL = "-O"; }; name = Release; };
+BEFD021A7723529C05ECE831 = { isa = XCConfigurationList; buildConfigurations = (6790911F78BD668E714BFC80, A14914BD3AC3B2E89E84875F,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+BE7F5747E17967B91B42CB5C = { isa = XCConfigurationList; buildConfigurations = (6A45810F2A9E158830466E8A, EE0C2F453FC802FADBA4E69B,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+}; rootObject = 73F09685F035FF044435D5BA; }

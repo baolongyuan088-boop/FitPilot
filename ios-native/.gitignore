@@ -1,0 +1,5 @@
+App/AppConfiguration.plist
+build/
+*.ipa
+xcuserdata/
+*.xcuserstate
