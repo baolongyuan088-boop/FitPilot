@@ -147,3 +147,16 @@ test('endpoint settings reject URL credentials and query-string secrets', () => 
   assert.equal(publicCoach({ ...env, FITPILOT_AI_BASE_URL: 'https://ai.example/v3?key=secret' }), null);
   assert.equal(publicCoach({ ...env, FITPILOT_AI_BASE_URL: 'http://ai.example/v3' }), null);
 });
+
+test('Ark Flash coaching disables default reasoning without changing other endpoints', async t => {
+  for (const base of ['https://ark.cn-beijing.volces.com/api/v3', 'https://ai.example/api/v3']) {
+    let sent;
+    const { call } = await fixture(t, { FITPILOT_AI_BASE_URL: base,
+      FITPILOT_AI_MODEL: 'deepseek-v4-1-flash-economy-261017',
+      FITPILOT_AI_FETCH: async (_url, init) => { sent = JSON.parse(init.body); return answer(); } });
+    assert.equal((await call('review', 'POST')).status, 202);
+    assert.equal((await call('status')).data.last.outcome, 'nochange');
+    assert.equal(sent.model, 'deepseek-v4-1-flash-economy-261017');
+    assert.equal(sent.thinking?.type, base.includes('volces.com') ? 'disabled' : undefined);
+  }
+});

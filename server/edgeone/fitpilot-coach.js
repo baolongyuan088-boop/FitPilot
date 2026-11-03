@@ -130,8 +130,16 @@ export async function coachRoute(request, db, env, user, route, bodyOf) {
     let attempt;
     try {
       attempt = await Promise.race([runPipeline({ adapter, cfg, kind, payload, model: env.FITPILOT_AI_MODEL,
-        timeoutMs: 18000, invokeOpts: { env: { OPENAI_COMPAT_API_KEY: env.FITPILOT_AI_API_KEY }, maxTokens: 6000,
-          fetch: (url, init) => (env.FITPILOT_AI_FETCH || fetch)(url, { ...init, redirect: 'error', signal: AbortSignal.any([ctl.signal, init.signal]) }),
+        timeoutMs: 40000, invokeOpts: { env: { OPENAI_COMPAT_API_KEY: env.FITPILOT_AI_API_KEY }, maxTokens: 6000,
+          fetch: (url, init) => {
+            // This Ark model enables reasoning by default. Keep interactive coaching within
+            // the function deadline and leave time for the actual structured answer.
+            const arkFlash = new URL(url).hostname === 'ark.cn-beijing.volces.com'
+              && /^deepseek-v4-1-flash(?:-economy)?-/.test(env.FITPILOT_AI_MODEL);
+            return (env.FITPILOT_AI_FETCH || fetch)(url, { ...init,
+              ...(arkFlash ? { body: JSON.stringify({ ...JSON.parse(init.body), thinking: { type: 'disabled' } }) } : {}),
+              redirect: 'error', signal: AbortSignal.any([ctl.signal, init.signal]) });
+          },
           retryDelayMs: 0, signal: ctl.signal } }), deadline]);
     } finally { clearTimeout(timer); }
     last = { id, kind, outcome: attempt.ok ? (attempt.nochange ? 'nochange' : 'ready') : 'failed',

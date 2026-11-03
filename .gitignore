@@ -9,6 +9,7 @@ data/
 # Local config
 .env
 .env.edgeone.local
+.env.*.local
 
 # Build output / deps
 frontend/dist/
