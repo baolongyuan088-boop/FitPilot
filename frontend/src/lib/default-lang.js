@@ -57,7 +57,10 @@ function cachedDefaultLang() {
  * picked one, what autoLang says. Before the config is in, the default this device last saw
  * stands in for it; with none seen yet the copy's stored language is used unchanged.
  */
-export function effectiveLang(S, config, navLangs = browserLangs()) {
+export function effectiveLang(S, config, navLangs = browserLangs(), { signedOut = false } = {}) {
+  // An old demo copy may contain an explicit English preference. Account onboarding on
+  // this deployment follows the server language; signing in restores the profile's choice.
+  if (signedOut && config?.deployment === 'edgeone') return autoLang({ langAuto: true }, config, navLangs)
   const own = (S && typeof S.lang === 'string' && S.lang) || 'en'
   if (!S || S.langAuto !== true) return own
   let cfg = config

@@ -1,7 +1,7 @@
 // #303: an instance-wide default language, and the browser's, apply only to a copy nobody has
 // picked a language for — never to an existing profile, whose `lang: 'en'` may be a choice.
 import { describe, expect, it } from 'vitest'
-import { matchLocale, autoLang } from './default-lang.js'
+import { matchLocale, autoLang, effectiveLang } from './default-lang.js'
 
 describe('matchLocale', () => {
   it('matches the full tag first, in any case or separator', () => {
@@ -41,4 +41,13 @@ describe('autoLang', () => {
     expect(autoLang(fresh, {}, ['nl-NL'])).toBe('en')
     expect(autoLang(fresh, { default_lang: 'xx' }, ['fr-FR'])).toBe('fr')
   })
+})
+
+it('shows EdgeOne account onboarding in Chinese despite an old demo preference, then restores the account choice', () => {
+  const saved = { lang: 'en', langAuto: false }
+  const config = { deployment: 'edgeone', default_lang: 'zh-CN' }
+  expect(effectiveLang(saved, config, ['en-US'], { signedOut: true })).toBe('zh')
+  expect(effectiveLang(saved, config, ['en-US'])).toBe('en')
+  expect(effectiveLang(saved, { default_lang: 'zh-CN' }, ['en-US'], { signedOut: true })).toBe('en')
+  expect(saved).toEqual({ lang: 'en', langAuto: false })
 })
