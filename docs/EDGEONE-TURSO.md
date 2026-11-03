@@ -56,3 +56,9 @@ AI 教练仅在服务端环境变量 `FITPILOT_AI_BASE_URL`、`FITPILOT_AI_MODEL
 部署时选择 edgeone-turso 分支。Turso 控制台详情初次偶发 Oops，刷新后可见 fitpilot-beta，URL 已抄入本地 .env.edgeone.local。此文件有独立随机会话密钥和初始化邀请码，权限 0600 且被 gitignore 排除。用户需替换数据库令牌、模型 ID、API Key 三个占位值，并在腾讯云项目设置的环境变量窗口批量导入。不要把此文件提交到仓库。
 
 部署后先检查 /api/health（仅证明数据库可达和是否配置模型），然后实际验收注册、退出重登、跨用户隔离、两设备同步、AI 返回及确认。中国大陆项目仍需要自定义域名，域名与可分享入口尚待核实；构建成功不等于手机可访问。
+
+## 2026-11-04 注册运行时修复
+
+正式云函数日志确认注册/登录读取请求体时出现 `getReader is not a function`：Makers 传入的是 Node readable，并非本地测试的 Web readable。请求体读取现兼容两种流，均保留 5 MB 限制与无效 JSON 拒绝。真实公共 HTTPS Origin 也被原来的 URL 来源比较拒绝，因此提供 `FITPILOT_ALLOWED_ORIGINS` 服务端精确白名单（逗号分隔完整 origin），不信任任意 forwarded-host，也不允许通配来源。当前网站值为 `https://fitpilot.zh-cn.edgeone.cool`；正式域名或独立预览入口改变时需更新对应环境的来源列表。
+
+新增回归先复现 500/403，修复后 24 项后端检查通过。账号创建与真机登录仍需在此次正式部署后单独验证。

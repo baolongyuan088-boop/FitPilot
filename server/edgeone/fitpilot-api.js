@@ -75,15 +75,27 @@ async function bodyOf(request) {
   if (size > maxBody) throw Object.assign(new Error('too large'), { status: 413 });
   const chunks = [];
   let bytes = 0;
-  const reader = request.body?.getReader();
+  const append = value => {
+    const chunk = Buffer.from(value);
+    bytes += chunk.byteLength;
+    if (bytes > maxBody) throw Object.assign(new Error('too large'), { status: 413 });
+    chunks.push(chunk);
+  };
+  const reader = typeof request.body?.getReader === 'function' ? request.body.getReader() : null;
   if (reader) {
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
-      bytes += value.byteLength;
-      if (bytes > maxBody) { await reader.cancel(); throw Object.assign(new Error('too large'), { status: 413 }); }
-      chunks.push(Buffer.from(value));
+      try { append(value); } catch (e) { await reader.cancel(); throw e; }
     }
+  } else if (typeof request.body?.[Symbol.asyncIterator] === 'function') {
+    // Makers Cloud Functions supplies a Node readable, rather than a Fetch stream.
+    for await (const value of request.body) append(value);
+  } else if (typeof request.text === 'function') {
+    append(await request.text());
+  } else if (request.body != null) {
+    append(typeof request.body === 'string' || Buffer.isBuffer(request.body)
+      || request.body instanceof Uint8Array ? request.body : JSON.stringify(request.body));
   }
   const text = Buffer.concat(chunks).toString('utf8');
   try {
@@ -102,16 +114,20 @@ async function blocked(db, key) {
   const row = (await db.execute({ sql: 'SELECT blocked_until FROM fp_login_attempts WHERE key=?', args: [key] })).rows[0];
   return row && Number(row.blocked_until) > Date.now();
 }
-const sameOrigin = request => {
+const sameOrigin = (request, env) => {
   const origin = request.headers.get('origin');
-  return !origin || origin === new URL(request.url).origin;
+  if (!origin) return true;
+  // Cloud proxies may replace request.url. Only explicitly configured public
+  // origins can override it; never trust arbitrary forwarded-host headers.
+  const allowed = String(env.FITPILOT_ALLOWED_ORIGINS || '').split(',').map(x => x.trim()).filter(Boolean);
+  return allowed.length ? allowed.includes(origin) : origin === new URL(request.url).origin;
 };
 
 export async function handle(request, db, env) {
   if (!env.FITPILOT_SESSION_SECRET || env.FITPILOT_SESSION_SECRET.length < 32) return error('configuration', 503);
   const { pathname } = new URL(request.url);
   const route = `${request.method} ${pathname}`;
-  if (!['GET', 'HEAD'].includes(request.method) && !sameOrigin(request)) return error('origin', 403);
+  if (!['GET', 'HEAD'].includes(request.method) && !sameOrigin(request, env)) return error('origin', 403);
   try {
     await schema(db);
     if (route === 'GET /api/health') {

@@ -5,6 +5,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { handle } from './fitpilot-api.js';
+import { Readable } from 'node:stream';
 
 const env = { FITPILOT_SESSION_SECRET: 'local-only-test-secret-with-at-least-32-bytes', FITPILOT_BOOTSTRAP_CODE: '1234567890ABCDEF' };
 function fixture(envOverride = {}) {
@@ -40,6 +41,35 @@ test('bootstrap administrator, one-use invitation and password login', async () 
   assert.equal((await call('/api/login/password', 'POST', { identifier: 'Baolong', password: 'long-password-123' })).status, 200);
   assert.equal((await call('/api/me')).data.user.admin, true);
   cleanup();
+});
+
+test('cloud Node request streams are parsed and bounded before registration', async () => {
+  const { db, cleanup } = fixture();
+  try {
+    const request = body => ({ url: 'https://fit.example/api/register/password', method: 'POST',
+      headers: new Headers({ 'Content-Type': 'application/json' }), body });
+    const empty = await handle(request(Readable.from(['{', '}'])), db, env);
+    assert.equal(empty.status, 400);
+    assert.equal((await empty.json()).code, 'missing');
+    const oversized = await handle(request(Readable.from([Buffer.alloc(5 * 1024 * 1024 + 1)])), db, env);
+    assert.equal(oversized.status, 413);
+  } finally { cleanup(); }
+});
+
+test('explicit public origins survive cloud URL rewriting without trusting forwarded hosts', async () => {
+  const { db, cleanup } = fixture();
+  const cloudEnv = { ...env, FITPILOT_ALLOWED_ORIGINS: 'https://fit.example' };
+  try {
+    const request = origin => new Request('http://internal.example/api/register/password', {
+      method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', 'X-Forwarded-Host': 'fit.example' }, body: '{}'
+    });
+    const own = await handle(request('https://fit.example'), db, cloudEnv);
+    assert.equal(own.status, 400);
+    assert.equal((await own.json()).code, 'missing');
+    for (const origin of ['https://evil.example', 'https://fit.example.evil.example', 'null', 'http://internal.example']) {
+      assert.equal((await handle(request(origin), db, cloudEnv)).status, 403);
+    }
+  } finally { cleanup(); }
 });
 
 test('Coach uses the server credential, requires consent, and records a validated no-change answer', async () => {
